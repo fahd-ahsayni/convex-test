@@ -11,4 +11,9 @@ export default defineSchema({
     author: v.string(),
     createdAt: v.number(),
   }).index("by_time", ["createdAt"]),
+  images: defineTable({
+    name: v.string(),
+    storageId: v.id("_storage"),
+    createdAt: v.number(),
+  }),
 });
