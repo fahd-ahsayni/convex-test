@@ -5,5 +5,10 @@ export default defineSchema({
   tasks: defineTable({
     text: v.string(),
     isCompleted: v.boolean(),
-  })
+  }),
+  messages: defineTable({
+    text: v.string(),
+    author: v.string(),
+    createdAt: v.number(),
+  }).index("by_time", ["createdAt"]),
 });

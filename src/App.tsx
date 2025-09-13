@@ -3,56 +3,43 @@ import { api } from "../convex/_generated/api";
 import { useState } from "react";
 
 export default function App() {
-  const tasks = useQuery(api.tasks.list);
-  const createTask = useMutation(api.tasks.create);
-  const updateTask = useMutation(api.tasks.update);
-  const deleteTask = useMutation(api.tasks.remove);
+  const messages = useQuery(api.message.list) ?? [];
+  const sendMessage = useMutation(api.message.send);
+  const [text, setText] = useState("");
 
-  const [newText, setNewText] = useState("");
-
-  if (!tasks) return <p>Loading...</p>;
+  const handleSend = async () => {
+    if (!text.trim()) return;
+    await sendMessage({ text, author: "Anonymous" });
+    setText("");
+  };
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto", fontFamily: "sans-serif" }}>
-      <h1>📝 Tasks</h1>
+    <div className="h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+      <div className="w-full max-w-md bg-white shadow rounded p-4 flex flex-col gap-2">
+        <div className="flex-1 overflow-y-auto border p-2 rounded h-64">
+          {messages.map((m) => (
+            <div key={m._id} className="border-b py-1">
+              <span className="font-bold">{m.author}: </span>
+              <span>{m.text}</span>
+            </div>
+          ))}
+        </div>
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (newText.trim()) {
-            await createTask({ text: newText });
-            setNewText("");
-          }
-        }}
-      >
-        <input
-          value={newText}
-          onChange={(e) => setNewText(e.target.value)}
-          placeholder="New task"
-        />
-        <button type="submit">Add</button>
-      </form>
-
-      <ul>
-        {tasks.map((t) => (
-          <li key={t._id}>
-            <input
-              type="checkbox"
-              checked={t.isCompleted}
-              onChange={() =>
-                updateTask({ id: t._id, isCompleted: !t.isCompleted })
-              }
-            />
-            <input
-              value={t.text}
-              onChange={(e) =>
-                updateTask({ id: t._id, text: e.target.value })
-              }
-            />
-            <button onClick={() => deleteTask({ id: t._id })}>🗑️</button>
-          </li>
-        ))}
-      </ul>
+        <div className="flex gap-2">
+          <input
+            className="flex-1 border rounded px-2"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type message..."
+          />
+          <button
+            onClick={handleSend}
+            className="bg-blue-500 text-white px-3 rounded"
+          >
+            Send
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
